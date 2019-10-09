@@ -3,15 +3,14 @@ package main.java.com.OlehHilchenko.javacore.TicTacToe;
 import java.util.Random;
 import java.util.Scanner;
 
-public class GameLogic {
+class GameLogic implements SharedConst {
 
-    protected final char THE_X = 'x';
-    protected final char THE_O = 'o';
+    private boolean endGame = false;
+    private int playCount = 0;
+    private Field field = new Field(P_F);
 
-    Field DataObject = new Field();
 
-
-    int getRandom() {
+    private int getRandom() {
         Random random = new Random();
         return random.nextInt(8) + 1;
     }
@@ -21,25 +20,25 @@ public class GameLogic {
         return st.next();
     }
 
-    char getChar() {
+    private char getChar() {
         Scanner ch = new Scanner(System.in);
         String choiceOrMove = ch.next();
         return choiceOrMove.charAt(0);
     }
 
-    void nextTurn() {
-        this.DataObject.setPlayCount(DataObject.getPlayCount() + 1);
+    private void nextTurn() {
+        this.playCount = playCount + 1;
     }
 
     void playWithPlayerOrMachine() {
-        System.out.println(DataObject.YOU_WANT_PLAY_P_OR_M);
+        System.out.println(YOU_WANT_PLAY_P_OR_M);
         while (true) {
             char ch = getChar();
             String s = ("" + ch).toLowerCase();
-            if (s.equals(DataObject.P)) {
+            if (s.equals(P)) {
                 playWithPlayer();
                 return;
-            } else if (s.equals(DataObject.M)) {
+            } else if (s.equals(M)) {
                 playWithMachine();
                 return;
             }
@@ -48,18 +47,18 @@ public class GameLogic {
 
     private void playWithMachine() {
         choiceXorO();
-        while (!DataObject.isEndGame()) {
+        while (!endGame) {
             displayGameField();
-            isTheCellUnderTheDigit(choiceMoveEn());
+            playerSelection(getScanAndCheck());
             checkWinner();
-            checkDraw();
+            checkDraw2(field.getFiled());
             nextTurn();
-            if (DataObject.isEndGame()) {
+            if (endGame) {
                 return;
             } else {
-                machineStrokeSelection(getRandom());
+                machinePlaySelection(getRandom());
                 checkWinner();
-                checkDraw();
+                checkDraw2(field.getFiled());
                 nextTurn();
             }
         }
@@ -67,16 +66,16 @@ public class GameLogic {
 
     private void playWithPlayer() {
         choiceXorO();
-        while (!DataObject.isEndGame()) {
+        while (!endGame) {
             displayGameField();
-            isTheCellUnderTheDigit(choiceMoveEn());
+            playerSelection(getScanAndCheck());
             checkWinner();
-            checkDraw();
+            checkDraw2(field.getFiled());
             nextTurn();
         }
     }
 
-    int choiceMoveEn() {
+    private int getScanAndCheck() {
         while (true) {
             String c = getSting();
             int i = Integer.parseInt(c);
@@ -89,32 +88,31 @@ public class GameLogic {
     }
 
     private void choiceXorO() {
-        System.out.println(DataObject.CHOICE_X_OR_O);
+        System.out.println(CHOICE_X_OR_O);
         boolean check = false;
         while (!check) {
             switch (getChar()) {
                 case THE_X:
-                    System.out.println(DataObject.FIRST_PLAYER_X);
-                    DataObject.setPlayCount(1);
+                    System.out.println(FIRST_PLAYER_X);
+                    playCount = 1;
                     check = true;
                     break;
                 case THE_O:
-                    System.out.println(DataObject.FIRST_PLAYER_O);
-                    DataObject.setPlayCount(2);
+                    System.out.println(FIRST_PLAYER_O);
+                    playCount = 2;
                     check = true;
                     break;
                 default:
-                    System.out.println(DataObject.YOU_MUST_CHOICE_X_OR_O);
+                    System.out.println(YOU_MUST_CHOICE_X_OR_O);
             }
         }
     }
 
     private void checkDraw() {
         int checkGameField = 0;
-        char[][] gameField = DataObject.getFiled();
-        boolean check = DataObject.isEndGame();
-        if (check) {
-            System.out.println(DataObject.SMILE);
+        char[][] gameField = field.getFiled();
+        if (endGame) {
+            System.out.println(SMILE);
             displayGameField();
         } else {
             for (int row = 0; row < gameField.length; row++) {
@@ -124,44 +122,64 @@ public class GameLogic {
                     }
                     if (9 == checkGameField) {
                         displayGameField();
-                        System.out.println(DataObject.DRAW + gameOver());
-                        DataObject.setEndGame(true);
+                        System.out.println(DRAW + gameOver());
+                        endGame = true;
                     }
                 }
             }
         }
     }
 
-    private String gameOver() {
-        return DataObject.GAME_OVER;
+    private void checkDraw2(char[][] gf) {
+        if (endGame) {
+            System.out.println(SMILE);
+            displayGameField();
+        } else {
+            int checkCount = 0;
+            for (char c[] : gf)
+                for (char x : c) {
+                    if (x == THE_O || x == THE_X)
+                        checkCount++;
+                    if (checkCount == 9) {
+                        displayGameField();
+                        System.out.println(DRAW + gameOver());
+                        endGame = true;
+                        return;
+                    }
+                }
+        }
     }
 
-    void isTheCellUnderTheDigit(int i) {
+    private String gameOver() {
+        return GAME_OVER;
+    }
+
+    //Player field play selection
+    private void playerSelection(int i) {
         int cell = i - 1;
         int count = 0;
-        for (int row = 0; row < DataObject.getFiled().length; row++) {
-            for (int colum = 0; colum < DataObject.getFiled()[row].length; colum++) {
-                if (cell == count && DataObject.getFiled()[row][colum] != THE_X && DataObject.getFiled()[row][colum] != THE_O) {
-                    DataObject.setFiled(row, colum, whoPlay());
+        for (int row = 0; row < field.getFiled().length; row++) {
+            for (int colum = 0; colum < field.getFiled()[row].length; colum++) {
+                if (cell == count && field.getFiled()[row][colum] != THE_X && field.getFiled()[row][colum] != THE_O) {
+                    field.setFiled(row, colum, whoPlay());
                     return;
                 }
                 count++;
             }
         }
-        System.out.println(DataObject.SELECT_EMPTY_FIELD);
-        isTheCellUnderTheDigit(choiceMoveEn());
+        System.out.println(SELECT_EMPTY_FIELD);
+        playerSelection(getScanAndCheck());
     }
 
-    void machineStrokeSelection(int i) {
-        boolean f = false;
+    //Machine field play selection
+    private void machinePlaySelection(int i) {
         int cell = i - 1;
-        while (!f) {
+        while (true) {
             int count = 0;
-            for (int row = 0; row < DataObject.getFiled().length; row++) {
-                for (int colum = 0; colum < DataObject.getFiled()[row].length; colum++) {
-                    if (cell == count && DataObject.getFiled()[row][colum] != THE_X && DataObject.getFiled()[row][colum] != THE_O) {
-                        DataObject.setFiled(row, colum, whoPlay());
-                        f = true;
+            for (int row = 0; row < field.getFiled().length; row++) {
+                for (int colum = 0; colum < field.getFiled()[row].length; colum++) {
+                    if (cell == count && field.getFiled()[row][colum] != THE_X && field.getFiled()[row][colum] != THE_O) {
+                        field.setFiled(row, colum, whoPlay());
                         return;
                     }
                     count++;
@@ -172,51 +190,47 @@ public class GameLogic {
     }
 
     private char whoPlay() {
-        if (1 == DataObject.getPlayCount() % 2) {
+        if (1 == playCount % 2) {
             return THE_X;
         } else {
             return THE_O;
         }
     }
 
-    void checkWinner() {
+    private void checkWinner() {
         //Check winner row and colum
-        for (int row = 0; row < DataObject.getFiled().length; row++) {
+        for (int row = 0; row < field.getFiled().length; row++) {
             int countCheckRow = 0;
             int countCheckColum = 0;
-            for (int colum = 0; colum < DataObject.getFiled()[row].length; colum++) {
-                if (DataObject.getFiled()[row][colum] == whoPlay()) {
+            for (int colum = 0; colum < field.getFiled()[row].length; colum++) {
+                if (field.getFiled()[row][colum] == whoPlay()) {
                     countCheckColum++;
                 }
-                if (DataObject.getFiled()[colum][row] == whoPlay()) {
+                if (field.getFiled()[colum][row] == whoPlay()) {
                     countCheckRow++;
                 }
-                if (3 == countCheckColum) {
-                    DataObject.setEndGame(true);
-                    System.out.println(whoPlay() + DataObject.PLAYER_WINS);
-                    return;
-                }
-                if (3 == countCheckRow) {
-                    DataObject.setEndGame(true);
-                    System.out.println(whoPlay() + DataObject.PLAYER_WINS);
+                if (3 == countCheckColum || 3 == countCheckRow) {
+                    endGame = true;
+                    System.out.println(whoPlay() + PLAYER_WINS);
                     return;
                 }
             }
         }
         //Check winner diagonals
-        if ((DataObject.getFiled()[0][0] == whoPlay() && DataObject.getFiled()[1][1] == whoPlay() && DataObject.getFiled()[2][2] == whoPlay())
-                || (DataObject.getFiled()[2][0] == whoPlay() && DataObject.getFiled()[1][1] == whoPlay() && DataObject.getFiled()[0][2] == whoPlay())) {
-            DataObject.setEndGame(true);
-            System.out.println(whoPlay() + DataObject.PLAYER_WINS);
+        if ((field.getFiled()[0][0] == whoPlay() && field.getFiled()[1][1] == whoPlay() && field.getFiled()[2][2] == whoPlay())
+                || (field.getFiled()[2][0] == whoPlay() && field.getFiled()[1][1] == whoPlay() && field.getFiled()[0][2] == whoPlay())) {
+            endGame = true;
+            System.out.println(whoPlay() + PLAYER_WINS);
         }
     }
 
-    void displayGameField() {
+    private void displayGameField() {
+        System.out.println(endGame ? " " : whoPlay() + " player walks");
         System.out.println();
-        for (int row = 0; row < DataObject.getFiled().length; row++) {
+        for (int row = 0; row < field.getFiled().length; row++) {
             System.out.println(" -------------");
-            for (int colum = 0; colum < DataObject.getFiled()[row].length; colum++) {
-                System.out.print(" | " + DataObject.getFiled()[row][colum]);
+            for (int colum = 0; colum < field.getFiled()[row].length; colum++) {
+                System.out.print(" | " + field.getFiled()[row][colum]);
             }
             System.out.println(" |");
         }

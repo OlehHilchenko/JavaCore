@@ -1,0 +1,45 @@
+Привет, Олег
+
+   protected static final String GAME_OVER = "GAME OVER MAN !!!";
+    protected static final String YOU_WANT_PLAY_P_OR_M = "You want play with player or machine ? p/m";
+    protected static final String CHOICE_X_OR_O = "Choice x or o !";
+    protected static final String FIRST_PLAYER_X = "firs player is x, second player is o !";
+    protected static final String FIRST_PLAYER_O = "firs player is o, second player is x !";
+    protected static final String YOU_MUST_CHOICE_X_OR_O = "you must choice x or o !!!";
+    protected static final String P = "p";
+    protected static final String M = "m";
+    protected static final String SMILE = ":-)
+";
+    protected static final String DRAW = "Draw!!!";
+
+    protected static final String SELECT_EMPTY_FIELD = "select empty field";
+    protected static final String PLAYER_WINS = " player wins!";
+
+Это стоит вынести либо в отдельный класс, либо в GameLogic
+
+2.   public void setPlayCount(int playCount) {
+        this.playCount = playCount;
+    }
+
+Поле не должно знать о номере хода - это уже часть логики
+
+3. Field DataObject = new Field();
+Именование
+private Field field = new Field();
+
+DataObject - так не именуем
+
+С маленькой буквы и по названию мы должны понимать, что это такое
+
+    void isTheCellUnderTheDigit(int i) {
+    void machineStrokeSelection(int i) {
+Именование методов - делаем более понятные названия
+
+        boolean f = false;
+Такие имена не стоит употреблять
+
+Более понятные переменные - что мы здесь храним
+
+4. Стоит просто создать метод validateInput
+
+Мне кажется, так будет проще
